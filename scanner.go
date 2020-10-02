@@ -2,10 +2,10 @@ package main
 
 import (
 	"bufio"
+	"file-reader/pkg/util"
 	"os"
 	"strings"
 	"time"
-	"unique/pkg/util"
 )
 
 func main() {

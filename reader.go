@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"file-reader/pkg/util"
 	"flag"
 	"fmt"
 	"io"
@@ -9,7 +10,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"unique/pkg/util"
 )
 
 const kb = 1024
