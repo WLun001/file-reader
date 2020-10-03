@@ -18,7 +18,7 @@ provider "google" {
 
 resource "google_storage_default_object_access_control" "public_rule" {
   bucket = google_storage_bucket.bucket.name
-  role   = "READER"
+  role = "READER"
   entity = "allUsers"
 }
 
@@ -29,14 +29,14 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_bucket_object" "text_file" {
-  name   = "big10.txt"
+  name = "big10.txt"
   source = "../assets/big10.txt"
   bucket = google_storage_bucket.bucket.name
 }
 
 resource "google_container_cluster" "primary" {
-  name               = "playground-cluster"
-  location           = var.zone
+  name = "playground-cluster"
+  location = var.zone
   initial_node_count = 1
 
   master_auth {
@@ -53,9 +53,15 @@ resource "google_container_cluster" "primary" {
   }
 
   node_config {
+    // using gke-default
+    // https://cloud.google.com/sdk/gcloud/reference/container/node-pools/create#--scopes
     oauth_scopes = [
+      "https://www.googleapis.com/auth/devstorage.read_only",
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/service.management.readonly",
+      "https://www.googleapis.com/auth/servicecontrol",
+      "https://www.googleapis.com/auth/trace.append",
     ]
 
     metadata = {

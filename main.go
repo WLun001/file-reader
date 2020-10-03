@@ -89,7 +89,7 @@ func readFileHandler(w http.ResponseWriter, r *http.Request) {
 		"top5":        util.Top5(dict),
 	}
 
-	fmt.Printf("deleting %s", filename)
+	log.Printf("deleting %s", filename)
 	err = os.Remove(filename)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

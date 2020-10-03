@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: file-reader
-        image: asia.gcr.io/medicbot-d925b/file-reader
+        image: asia.gcr.io/medicbot-d925b/file-reader:latest
         resources:
           requests:
             memory: "32Mi"

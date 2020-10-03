@@ -4,7 +4,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/file-reader-server .
 
 FROM alpine:latest
-RUN addgroup -S file-reader && file-reader -S file-reader -G file-reader
+RUN addgroup -S file-reader && adduser -S file-reader -G file-reader
 USER file-reader
 WORKDIR /home/file-reader
 COPY --from=build-go /bin/file-reader-server ./
