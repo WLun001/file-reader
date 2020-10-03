@@ -1,5 +1,21 @@
 # Large file reader
 
+## Goal
+- read 100 GB text file
+- memory cap at 16 GB
+- only scan text file once
+- reduce IO operations
+- find first unique word
+
+## Demo
+- it will take about 1 minute
+- IP address and bucket URL will be remove afterward
+```bash
+curl 'http://34.87.25.50:3000/word?file=https://storage.googleapis.com/temp-read-large-file-bucket/big10.txt' | jq
+```
+
+### Find example data
+
 `emoji.txt` were combined from [Kaggle dataset](https://www.kaggle.com/praveengovi/emotions-dataset-for-nlp)
 
 ```bash
@@ -46,19 +62,24 @@ and, 11983
 to, 11151
 the, 10454
 a, 7732
-
 ```
 
-Looks like second approach is better. Let's improve second approach further. To simulate low memory environment, we containerise it and make run it on http server.
+Looks like second approach is better. Let's improve second approach further. To simulate low memory environment, we containerise it, wrap it on http server and run on Kubernetes.
+
+The Web API will look like this
+```text
+http://IP_ADDRESS/word?file=file-url.txt
+```
 
 Assume we need to read 100 GB file, with max 16 GB memory. 
-then we can simulate by reading 1 GB file, with max 0.16 GB (160 MB) memory. If the usage exceed 160 MB, the pod will be killed.
-
+then we can simulate by reading 1 GB file, with max 0.16 GB (160 MB) memory.
 
 | File size (GB) | Max Memory (GB)   
 | :------------- | :----------: | 
-|  100  | 16   | 
-| 1   | 0.16 |
+|  100           | 16           | 
+| 1              | 0.16         |
+
+If the usage exceed 160 MB, the pod will be killed, by providing value to `spec.containers[].resources.limits.memory`
 
 ```yaml
  resources:
@@ -68,11 +89,6 @@ then we can simulate by reading 1 GB file, with max 0.16 GB (160 MB) memory. If 
     limits:
       memory: "160Mi"
       cpu: "500m"
-```
-
-The API will look like this
-```text
-http://IP_ADDRESS/word?file=file-url.txt
 ```
 
 #### Create larger text file
@@ -110,7 +126,7 @@ file-reader-service   LoadBalancer   10.3.254.7   34.87.25.50   3000:31465/TCP  
 
 #### Test the API
 ```bash
-$ curl 'http://34.87.25.50:3000/word?file=https://storage.googleapis.com/temp-read-large-file-bucket/big10.txt' | jq
+$ curl 'http://IP_ADDRESS/word?file=https://big10.txt' | jq
 
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
@@ -120,7 +136,7 @@ $ curl 'http://34.87.25.50:3000/word?file=https://storage.googleapis.com/temp-re
     "MiB": 1526,
     "name": "file-1601703943.txt",
     "size": 1600501760,
-    "url": "https://storage.googleapis.com/temp-read-large-file-bucket/big10.txt"
+    "url": "https://big10.txt"
   },
   "mem": {
     "alloc": "22 MiB",
@@ -130,6 +146,7 @@ $ curl 'http://34.87.25.50:3000/word?file=https://storage.googleapis.com/temp-re
   },
   "timeTaken": "1m15.587011379s",
   "words": {
+    "firstUniqueWord": "yaguaza",
     "top5": [
       "i, 16497152",
       "feel, 7136768",
@@ -150,8 +167,13 @@ Pod usage metrics
 
 ![usage](screenshot/pod-usage.png)
 
+#### Result
+Based on the result, it can read 1.5-1.6 GB of text file with ~ 40 MB memory. Thus, we can assume that it can handle 100 GB text file with cap memory at 16 GB. 
 
-### Clean up 
+Also, found the first unique word by reading the file only once and other additional information. 
+
+
+## Clean up 
 
 ```
 cd terraform

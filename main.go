@@ -65,7 +65,7 @@ func readFileHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	dict, words := readFile(file)
+	dict, words, uniqueWord := fileProcessing(file)
 
 	alloc, totalAlloc, sys, numGC := util.MemUsage()
 
@@ -84,9 +84,10 @@ func readFileHandler(w http.ResponseWriter, r *http.Request) {
 		"name": f.Name(),
 	}
 	res["words"] = map[string]interface{}{
-		"uniqueWords": len(dict),
-		"wordCount":   words,
-		"top5":        util.Top5(dict),
+		"uniqueWords":     len(dict),
+		"wordCount":       words,
+		"firstUniqueWord": uniqueWord,
+		"top5":            util.Top5(dict),
 	}
 
 	log.Printf("deleting %s", filename)
@@ -108,7 +109,10 @@ func readFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func readFile(f *os.File) (map[string]int, int) {
+// read file
+// return unique word dict, word count, and first unique word
+func fileProcessing(f *os.File) (map[string]int, int, string) {
+	uniqueWord := ""
 	dict := make(map[string]int)
 	words := 0
 
@@ -117,7 +121,10 @@ func readFile(f *os.File) (map[string]int, int) {
 		for _, w := range strings.Fields(scanner.Text()) {
 			dict[w]++
 			words++
+			if dict[w] == 1 {
+				uniqueWord = w
+			}
 		}
 	}
-	return dict, words
+	return dict, words, uniqueWord
 }
