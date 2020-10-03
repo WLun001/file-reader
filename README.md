@@ -13,7 +13,7 @@
 ```bash
 curl 'http://34.87.25.50:3000/word?file=https://storage.googleapis.com/temp-read-large-file-bucket/big10.txt' | jq
 ```
-
+## Solution
 ### Find example data
 
 `emoji.txt` were combined from [Kaggle dataset](https://www.kaggle.com/praveengovi/emotions-dataset-for-nlp)
