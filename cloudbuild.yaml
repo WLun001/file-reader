@@ -1,0 +1,17 @@
+steps:
+  - id: docker build
+    name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '-t', 'asia.gcr.io/$PROJECT_ID/file-reader:$SHORT_SHA', '.' ]
+
+  - id: docker push
+    name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', 'gcr.io/$PROJECT_ID/file-reader:$SHORT_SHA' ]
+
+  - id: Deploy to GKE
+    name: 'gcr.io/cloud-builders/gke-deploy:stable'
+    args:
+      - run
+      - --filename=file-reader.yaml
+      - --image=asia.gcr.io/$PROJECT_ID/file-reader:$SHORT_SHA
+      - --cluster=playground-cluster
+      - --location=asia-southeast1-a

@@ -1,0 +1,14 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Go template
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+.idea/
+.DS_Store
+*.txt
+terraform/
+
