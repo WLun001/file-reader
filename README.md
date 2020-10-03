@@ -5,11 +5,6 @@
 ```bash
 $ cat *.txt > emoji.txt
 ``` 
-Create more text file
-```bash
-$ cat /usr/share/dict/words | sort -R | head -100000 > file.txt
-$ cat *.txt > big.txt # repeat for 10 times until get 1.6GB txt file
-```
 
 ### First attempt
 - faster, lower memory usage, but not accurate
@@ -74,6 +69,12 @@ The API will look like this
 http://IP_ADDRESS/word?file=file-url.txt
 ```
 
+#### Create larger text file
+```bash
+$ cat /usr/share/dict/words | sort -R | head -100000 > file.txt
+$ cat *.txt > big.txt # repeat for 10 times until get 1.6GB txt file
+```
+
 #### create cloud resources
 - create public bucket
 - upload `big10.txt` to bucket
@@ -84,6 +85,7 @@ $ cd terraform
 $ terraform init
 $ terraform apply
 ```
+
 #### Build container and deploy
 > make sure you enable cloud build access to GKE at [setting](https://console.cloud.google.com/cloud-build/settings/service-account)
 ```bash
