@@ -13,5 +13,6 @@
 terraform/terraform-sa.json
 *.tfstate
 *.tfstate.backup
+*.tfvars
 .terraform/
 
