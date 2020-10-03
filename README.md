@@ -54,6 +54,12 @@ Looks like second approach is better. Let's improve second approach further. To 
 Assume we need to read 100 GB file, with max 16 GB memory. 
 then we can simulate by reading 1 GB file, with max 0.16 GB (160 MB) memory. If the usage exceed 160 MB, the pod will be killed.
 
+
+| File size (GB) | Max Memory (GB)   
+| :------------- | :----------: | 
+|  100  | 16   | 
+| 1   | 0.16 |
+
 ```yaml
  resources:
     requests:
