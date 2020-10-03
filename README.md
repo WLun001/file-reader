@@ -3,7 +3,7 @@
 `emoji.txt` were combined from [Kaggle dataset](https://www.kaggle.com/praveengovi/emotions-dataset-for-nlp)
 
 ```bash
-$ cat *.txt > emoji.txt
+$ cat *.txt > emoji.txt # about 2.1 MB
 ``` 
 
 ### First attempt
