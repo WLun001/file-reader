@@ -9,4 +9,9 @@
 *.out
 .idea/
 .DS_Store
+*.txt
+terraform/terraform-sa.json
+*.tfstate
+*.tfstate.backup
+.terraform/
 
