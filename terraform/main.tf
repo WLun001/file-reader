@@ -24,7 +24,7 @@ resource "google_storage_default_object_access_control" "public_rule" {
 
 resource "google_storage_bucket" "bucket" {
   name = "temp-read-large-file-bucket"
-  location = "ASIA-SOUTHEAST1"
+  location = upper(var.region)
   force_destroy = true
 }
 
