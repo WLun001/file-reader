@@ -16,7 +16,7 @@
       - [Get the IP address](#get-the-ip-address)
       - [Test the API](#test-the-api)
       - [Result](#result-2)
-  * Conclusion(#conclusion)
+  * [Conclusion](#conclusion)
   * [Clean up](#clean-up)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
