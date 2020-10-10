@@ -1,5 +1,25 @@
 # Large file reader
 
+- [Large file reader](#large-file-reader)
+  * [Goal](#goal)
+  * [Demo](#demo)
+  * [Solution](#solution)
+    + [Find example data](#find-example-data)
+    + [First attempt](#first-attempt)
+        * [concept](#concept)
+        * [Result](#result)
+    + [Second attempt](#second-attempt)
+        * [Result](#result-1)
+      - [Create larger text file](#create-larger-text-file)
+      - [create cloud resources](#create-cloud-resources)
+      - [Build container and deploy](#build-container-and-deploy)
+      - [Get the IP address](#get-the-ip-address)
+      - [Test the API](#test-the-api)
+      - [Result](#result-2)
+  * [Clean up](#clean-up)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 ## Goal
 - read 100 GB text file
 - memory cap at 16 GB
@@ -56,7 +76,8 @@ go func() {
 // offset is the last reading position
 file.Seek(offset, 0)
 reader := bufio.NewReader(file)
-// if current cummulativeSize is larger than the limit that supposed to read by this goroutine, exit the function
+// if current cummulativeSize is larger than the limit 
+// that supposed to read by this goroutine, exit the function
 if cummulativeSize > limit {
 	break
 }
@@ -262,6 +283,17 @@ Pod usage metrics
 Based on the result, it can read 1.5-1.6 GB of text file with ~ 40 MB memory. The pod did not get killed due to `OOMKilled` error. Thus, we can assume that it can handle 100 GB text file with cap memory at 16 GB.
 
 Also, found the first unique word by reading the file only once and other additional information. 
+
+I am not exact sure if [second approach](#second-attempt) will not get `out of memory`, thus I test it by simulating low memory environment, with the ratio below. 
+
+| File size (GB) | Max Memory (GB)   
+| :------------- | :----------: | 
+|  100           | 16           | 
+| 1              | 0.16         |
+
+With the test result shown, I guess it will not get `out of memory`. If you have any suggestions and approaches, please let me know! I am keen to learn about it
+
+Thanks!
 
 ## Clean up 
 
