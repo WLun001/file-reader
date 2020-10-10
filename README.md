@@ -23,7 +23,75 @@ $ cat *.txt > emoji.txt # about 2.1 MB
 ``` 
 
 ### First attempt
-- faster, lower memory usage, but not accurate
+With goroutines and `bufio.NewReader`
+##### concept
+
+1.  determine the filesize, and split into different goroutine, based on a constant `limitInBytes`
+```go
+goroutines := 1
+limitInBytes := int64(*limit * kb)
+if f.Size() > limitInBytes {
+	goroutines = int(f.Size() / limitInBytes)
+}
+```
+
+2. Define a channel to receive words
+```go
+channel := make(chan string)
+dict := make(map[string]int)
+done := make(chan bool, 1)
+words := 0
+go func() {
+	for s := range channel {
+		words++
+		dict[s]++
+	}
+    done <- true
+}()
+
+```
+
+3.  Read the file from specific destination
+```go
+// offset is the last reading position
+file.Seek(offset, 0)
+reader := bufio.NewReader(file)
+// if current cummulativeSize is larger than the limit that supposed to read by this goroutine, exit the function
+if cummulativeSize > limit {
+	break
+}
+// read word by word
+b, err := reader.ReadBytes(' ')
+// send to the word channel
+channel <- s
+
+```
+4. Read the file on each goroutine
+```go
+for i := 0; i < goroutines; i++ {
+	wg.Add(1)
+
+	go func() {
+      // file reading
+	  read(current, limitInBytes, *file, channel)
+	  wg.Done()
+	}()
+
+	current += limitInBytes + 1
+}
+```
+
+5. Wait the goroutines to finish
+```go
+wg.Wait()
+close(channel)
+
+// to exit the word channel
+<-done
+close(done)
+```
+##### Result
+faster, lower memory usage, but not accurate (could be some logic error)
 ```bash
 $ go run cmd/reader.go
 
@@ -46,7 +114,25 @@ a, 2163
 ```
 
 ### Second attempt
+With `bufio.NewScanner` and  `Scan()`
+```go
+func readFile(f *os.File) (map[string]int, int) {
+	dict := make(map[string]int)
+	words := 0
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		for _, w := range strings.Fields(scanner.Text()) {
+			dict[w]++
+			words++
+		}
+	}
+    return dict, words
+}
+```
+##### Result
 - slower, higher memory usage, accurate
+- Not sure if this can handle large files, without hitting ouf of memory error, will test it out in the below section. 
 ```bash
 $ go run cmd/scanner.go
 
@@ -64,7 +150,12 @@ the, 10454
 a, 7732
 ```
 
-Looks like second approach is better. Let's improve second approach further. To simulate low memory environment, we containerise it, wrap it on http server and run on Kubernetes.
+Looks like second approach is better. Not sure if will hit out of memory error. Let's improve second approach further. To simulate low memory environment, we containerise it, wrap it on http server and run on Kubernetes.
+
+```go
+http.HandleFunc("/word", readFileHandler)
+http.ListenAndServe(":3000", nil)
+```
 
 The Web API will look like this
 ```text
@@ -168,10 +259,9 @@ Pod usage metrics
 ![usage](screenshot/pod-usage.png)
 
 #### Result
-Based on the result, it can read 1.5-1.6 GB of text file with ~ 40 MB memory. Thus, we can assume that it can handle 100 GB text file with cap memory at 16 GB. 
+Based on the result, it can read 1.5-1.6 GB of text file with ~ 40 MB memory. The pod did not get killed due to `OOMKilled` error. Thus, we can assume that it can handle 100 GB text file with cap memory at 16 GB.
 
 Also, found the first unique word by reading the file only once and other additional information. 
-
 
 ## Clean up 
 
