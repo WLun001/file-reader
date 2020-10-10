@@ -16,6 +16,7 @@
       - [Get the IP address](#get-the-ip-address)
       - [Test the API](#test-the-api)
       - [Result](#result-2)
+  * Conclusion(#conclusion)
   * [Clean up](#clean-up)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
@@ -284,6 +285,7 @@ Based on the result, it can read 1.5-1.6 GB of text file with ~ 40 MB memory. Th
 
 Also, found the first unique word by reading the file only once and other additional information. 
 
+## Conclusion
 I am not exact sure if [second approach](#second-attempt) will not get `out of memory`, thus I test it by simulating low memory environment, with the ratio below. 
 
 | File size (GB) | Max Memory (GB)   
