@@ -22,7 +22,6 @@ const (
 )
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	if err := runFn(); err != nil {
 		log.Fatal(err)
 	}
@@ -79,21 +78,14 @@ func runFn() error {
 
 	wg.Wait()
 
-	res, reducerFile := reducer(dirPath)
+	res, uniqueWord, reducerFile := reducer(dirPath)
 	rel, err := filepath.Rel(wd, reducerFile)
 	if err != nil {
 		log.Println(err)
 	}
 	log.Printf("Result written to %s\n", rel)
-
+	log.Printf("First unique word: %s", uniqueWord)
 	util.PrintTop5(res)
-
-	// cleanup
-	//rm := exec.Command("rm", "-rf", dirPath)
-	//if err := rm.Start(); err != nil {
-	//	log.Fatal(err)
-	//}
-	//_ = rm.Wait()
 
 	return nil
 }
@@ -132,8 +124,11 @@ func mapper(wg *sync.WaitGroup, text, path string) {
 // process the result from file
 // return key value pairs
 // write result as json at tmp dir
-func reducer(dir string) (map[string]int, string) {
+
+// returns dict, uniqueWord, and result filename
+func reducer(dir string) (map[string]int, string, string) {
 	var files []string
+	uniqueWord := ""
 	dict := make(map[string]int)
 	if err := filepath.Walk(dir, walkFn(&files)); err != nil {
 		log.Fatal(err)
@@ -157,6 +152,9 @@ func reducer(dir string) (map[string]int, string) {
 
 		for word, count := range currentDict {
 			dict[word] += count
+			if dict[word] == 1 {
+				uniqueWord = word
+			}
 		}
 		_ = f.Close()
 
@@ -171,7 +169,7 @@ func reducer(dir string) (map[string]int, string) {
 
 	_ = ioutil.WriteFile(filename, data, 0644)
 
-	return dict, filename
+	return dict, uniqueWord, filename
 }
 
 func walkFn(files *[]string) filepath.WalkFunc {

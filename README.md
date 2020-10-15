@@ -16,10 +16,13 @@
       - [Get the IP address](#get-the-ip-address)
       - [Test the API](#test-the-api)
       - [Result](#result-2)
+    + [Third attempt](#third-attempt)
+      - [Result](#result-3)
   * [Conclusion](#conclusion)
   * [Clean up](#clean-up)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 
 ## Goal
 - read 100 GB text file
@@ -290,6 +293,66 @@ Based on the result, it can read 1.5-1.6 GB of text file with ~ 40 MB memory. Th
 
 Also, found the first unique word by reading the file only once and other additional information. 
 
+
+### Third attempt
+On this attempt, I will try to mimic Hadoop Map Reduce concept. Instead of using HDFS, we just write to local file storage.
+
+1. Set a `lineLimit`, and read the files based on line limit, if current read line more than `lineLimit`, send a Mapper job
+2. Mapper will process, count unique words, and save write result to file
+3. Once all Mapper jobs are complete, Reducer will trigger.
+4. Reducer will read all files written by Mapper, and combine the results
+
+```go
+// read line by line
+for scanner.Scan() {
+	accLines += fmt.Sprintf("\n%s", scanner.Text())
+	counter++
+	if counter > lineLimit {
+		wg.Add(1)
+        // trigger Mapper Job
+		go mapper(&wg, accLines, dirPath)
+		// reset
+		accLines = ""
+		counter = 0
+	}
+}
+// wait for all Mapper jobs completes
+wg.Wait()
+
+// trigger Reducer
+res, reducerFile := reducer(dirPath)
+```
+
+#### Result
+
+```bash
+$ go run fake-hadoop.go
+Result written to tmp/reducer-1602762922444809000.json
+First unique word: interdum
+top 5 words
+
+sed, 20
+non, 12
+sit, 12
+et, 12
+ipsum, 10
+purus, 9
+
+$ cat tmp/reducer-16027x62922444809000.json
+{
+ "Aenean": 6,
+ "Aliquam": 2,
+ "Cras": 3,
+ "Curabitur": 1,
+ "Donec": 6,
+ "Duis": 3,
+ "Etiam": 1,
+ "Fusce": 2,
+  .....
+}
+```
+This approach does lower the usage of memory, but has high IO operation.
+
 ## Conclusion
 I am not exact sure if [second approach](#second-attempt) will not get `out of memory`, thus I test it by simulating low memory environment, with the ratio below. 
 
@@ -298,7 +361,14 @@ I am not exact sure if [second approach](#second-attempt) will not get `out of m
 |  100           | 16           | 
 | 1              | 0.16         |
 
-With the test result shown, I guess it will not get `out of memory`. If you have any suggestions and approaches, please let me know! I am keen to learn about it
+With the test result shown, I guess it will not get `out of memory`. If you have any suggestions and approaches, please let me know! I am keen to learn about it.
+
+For the [third approach](#third-attempt), I personally is not a good choice. IO operation is slow. Which is why Spark RDD was created. 
+
+> Spark has been found to run 100 times faster in-memory, and 10 times faster on disk. It’s also been used to sort 100 TB of data 3 times faster than Hadoop MapReduce on one-tenth of the machines. 
+
+
+Let me know what you think. I am happy to know. 
 
 Thanks!
 
