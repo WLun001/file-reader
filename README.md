@@ -179,6 +179,11 @@ http.HandleFunc("/word", readFileHandler)
 http.ListenAndServe(":3000", nil)
 ```
 
+Run locally
+```bash
+go run cmd/server.go
+```
+
 The Web API will look like this
 ```text
 http://IP_ADDRESS/word?file=file-url.txt

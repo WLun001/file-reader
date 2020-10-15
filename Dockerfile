@@ -1,7 +1,7 @@
 FROM golang:1.15 as build-go
 WORKDIR /file-reader
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/file-reader-server .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/file-reader-server cmd/server.go
 
 FROM alpine:latest
 RUN addgroup -S file-reader && adduser -S file-reader -G file-reader
