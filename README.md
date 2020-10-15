@@ -298,7 +298,7 @@ Also, found the first unique word by reading the file only once and other additi
 On this attempt, I will try to mimic Hadoop Map Reduce concept. Instead of using HDFS, we just write to local file storage.
 
 1. Set a `lineLimit`, and read the files based on line limit, if current read line more than `lineLimit`, send a Mapper job
-2. Mapper will process, count unique words, and save write result to file
+2. Mapper will process, count unique words, and  write result to file
 3. Once all Mapper jobs are complete, Reducer will trigger.
 4. Reducer will read all files written by Mapper, and combine the results
 
