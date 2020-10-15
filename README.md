@@ -326,7 +326,7 @@ res, reducerFile := reducer(dirPath)
 #### Result
 
 ```bash
-$ go run fake-hadoop.go
+$ go run cmd/fake-hadoop.go
 Result written to tmp/reducer-1602762922444809000.json
 First unique word: interdum
 top 5 words
