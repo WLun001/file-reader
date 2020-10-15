@@ -15,4 +15,5 @@ terraform/terraform-sa.json
 *.tfstate.backup
 *.tfvars
 .terraform/
+tmp/
 
